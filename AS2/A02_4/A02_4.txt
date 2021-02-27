@@ -1,0 +1,22 @@
+Class name Gem
+--------------------------- 
+-Member variables 
+-symbol:char
+-value:int
+---------------------------
+Member functions 
++setValue(val:int):void
++printSymbol():void
++getValue():int
+
+Class name Map
+--------------------------- 
+Member variables
+-width: int
+-height:int
+-table: *row
+---------------------------
+Member functions 
++Map(w:int,l:int):
++~Map():
++print():void
