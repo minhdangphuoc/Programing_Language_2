@@ -35,10 +35,11 @@ class ManhattanDistanceCalculator: public DistanceCalculator{
         return dis;
     }
 };
-
+//A08_3
 class ChangedMyMindDistanceCalculator:public ManhattanDistanceCalculator{
     public:
     virtual double distance(int a[], int b[], int len) override {
+        std::cout<<"\nChangedMyMindDistanceCalculator::distance Access\n";
         return 0;
     }
 };
@@ -60,7 +61,6 @@ int main(){
     if (!cal2->isZero(a,len)&&!cal2->isZero(b,len)){
         std::cout<<cal2->distance(a,b,len)<<std::endl;
     }
-
     ChangedMyMindDistanceCalculator cCal;
     ManhattanDistanceCalculator * mCal2 {&cCal};
 
