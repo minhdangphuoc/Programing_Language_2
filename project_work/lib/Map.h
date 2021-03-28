@@ -8,6 +8,7 @@ private:
 	int width;
 	int height;
 	char* map;
+	char* objectPosCode;
 public:
 	//Assignment operator
 	Map& operator = (const Map &m){
@@ -27,6 +28,13 @@ public:
     	}
 	}
 	
+	void setObject(const char symbol, int code){
+
+	}
+
+	//Operator constructor
+	friend Map operator + (Map const &, Map const &);
+	
 	//Copy constructor
 	Map(const Map &m){
 		this -> width = m.width;
@@ -40,18 +48,16 @@ public:
 	}
 
 	//Constructor
-	Map(int width, int height, int difficulty){
+	Map(int width, int height){
 		this -> width = width;
 		this -> height = height;
 		srand(time(NULL));
 
 		map = new char [ this -> height * this -> width];
-		for (int i = 0; i< this->height; i++){
-			for (int k = 0; k < this->width; k++){
-				if ((k%(this->width-1)==0||i%(this->height-1)==0)){
-					map[i* this -> width + k] = '#';//wall build
-				} else { //random opject
-					map[i* this -> width + k] = (rand()%difficulty==0?'#':'.');//random wall
+		for (int y = 0; y< this->height; y++){
+			for (int x = 0; x < this->width; x++){
+				if ((x%(this->width-1)==0||y%(this->height-1)==0)){
+					map[y* this -> width + x] = '#';//wall build
 				}
 			}
 		}
