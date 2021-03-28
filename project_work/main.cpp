@@ -1,7 +1,17 @@
 #include <iostream>
-#include "Map.h"
+#include "lib/Map.h"
+
+void gameLoop(){
+    
+    gameLoop();
+}
 
 int main(){
-    Map m1(8,8);
-    m1.print();
+    Map * m;
+    do
+    {
+        m = new Map(10,10,5);
+    } while (m->mapPlayable());
+    
+    m->print();
 }
