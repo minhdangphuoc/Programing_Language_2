@@ -1,3 +1,7 @@
+#include <iostream>
+#include <stdlib.h> 
+#include "time.h"
+
 class Map {
 private:
 	int width;
