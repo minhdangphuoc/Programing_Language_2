@@ -27,6 +27,20 @@ public:
     virtual char getSymbol() = 0;
 };
 
+class Exit: public GameObject{
+    public:
+    Exit(int x, int y){
+        pos.setX(x);
+        pos.setY(y);
+    }
+
+    char getSymbol(){
+        return ITEM.SYMBOL_EXIT;
+    }
+ 
+};
+
+
 class Player: public GameObject{
     public:
     Player(int max_x, int max_y){
@@ -56,8 +70,8 @@ class Rock: public GameObject{
         pos.setX(x);
         pos.setY(y);
     }
+    
     char getSymbol(){
         return ITEM.SYMBOL_ROCK;
     }
-
 };

@@ -8,9 +8,9 @@ private:
 	int height;
 	char* map;
 	int* objectPosCode;
-	Constants ITEM;
 	
 public:
+	
 	
 	//Assignment operator
 	Map& operator = (const Map &m){
@@ -47,10 +47,6 @@ public:
 		map[y* this -> width+ x] = '.';
 	}
 
-	//Map testing 
-	bool mapPlayable(){
-		return false;
-	}
 	//Constructor
 	Map(int width, int height){
 		this -> width = width;
@@ -69,6 +65,6 @@ public:
 	}
 
 	~Map(){
-		delete[] map;
+		delete map, objectPosCode;
 	}
 };
