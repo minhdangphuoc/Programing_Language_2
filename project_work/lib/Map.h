@@ -9,9 +9,7 @@ private:
 	char* map;
 	int* objectPosCode;
 	
-public:
-	
-	
+public:	
 	//Assignment operator
 	Map& operator = (const Map &m){
 		height = m.height;
@@ -34,8 +32,25 @@ public:
 		return map[y* this -> width + x]=='X'?true:false;
 	} 
 
+	bool isApple(const int x, const int y){
+		return map[y* this -> width + x]=='X'?true:false;
+	} 
+
+	bool isGem(const int x, const int y){
+		if(map[y* this -> width + x]=='*'||map[y* this -> width + x]=='$'||map[y* this -> width + x]=='#')
+		{
+			return true;
+		}
+		return false;
+		
+	} 
+
 	char getObject(const int x, const int y){
 		return map[y* this -> width + x];
+	}
+
+	char getCode(const int x, const int y){
+		return objectPosCode[y* this -> width+ x];
 	}
 
 	void setObject(const int x, const int y,const char symbol, const int code){
