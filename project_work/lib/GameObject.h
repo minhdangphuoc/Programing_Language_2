@@ -67,9 +67,29 @@ class Player: public GameObject{
 };
 
 class Monster: public GameObject{
+    public:
+    
+    
 };
 
 class MagicApple: public GameObject{
+    private:
+    int value;
+    public:
+    MagicApple(int x, int y){
+        pos.setX(x);
+        pos.setY(y);
+        srand(time(NULL));
+        value = 50;
+    }
+
+    int getValue(){
+        return value;
+    }
+
+    char getSymbol() {
+        return ITEM.SYMBOL_MAGIC_APPLE;
+    }
 };
 
 class Gem: public GameObject{
