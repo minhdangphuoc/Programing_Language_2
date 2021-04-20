@@ -3,6 +3,8 @@
 #include "lib/Map.h"
 #include <time.h>
 
+void OS_select();
+
 const int MAX_LEVEL=10;
 
 struct Move
@@ -44,7 +46,16 @@ void defaultConfig(){
 }
 
 void playerDead(){
+    char opt;
     if (system("CLS")) system("clear"); 
+    std::cout<<"Play again (y/n):";
+    std::cin>>opt;
+    if (system("CLS")) system("clear"); 
+    if(opt=='y'){
+        
+        OS_select();
+    }
+    
     std::cout<<"Game Over\nPress enter to exit.\n";
     std::cin.ignore();
     std::cin.get();
