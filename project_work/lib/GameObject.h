@@ -67,8 +67,22 @@ class Player: public GameObject{
 };
 
 class Monster: public GameObject{
+    private:
+    int value;
     public:
-    
+    Monster(int x, int y){
+        pos.setX(x);
+        pos.setY(y);
+        srand(time(NULL));
+    }
+
+    int getValue(){
+        return value;
+    }
+
+    char getSymbol() {
+        return ITEM.SYMBOL_MONSTER;
+    }
     
 };
 

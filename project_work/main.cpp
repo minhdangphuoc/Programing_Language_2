@@ -7,11 +7,8 @@ void OS_select();
 
 const int MAX_LEVEL=10;
 
-struct Move
-{
-    int x;
-    int y;
-} w_move, a_move, s_move, d_move;
+const int move_x[5] = {0,0,-1,0,1};
+const int move_y[5] = {0,-1,0,1,0};
 
 struct LEVEL{
     int HEIGHT, WIDTH, MONSTERS, GEMS, MAGICAPPLES, ROCKS;
@@ -45,7 +42,7 @@ void defaultConfig(){
     }
 }
 
-void playerDead(){
+void endGame(){
     char opt;
     if (system("CLS")) system("clear"); 
     std::cout<<"Play again (y/n):";
@@ -73,7 +70,7 @@ void gameLoop(const int level, int energy, int point){
     srand(time(NULL));
     bool finish = false, nextLevel = false;
     char opt;
-    int x_temp, y_temp;
+    int x_temp, y_temp, input;
     //GAMEOPJECT CREATED
     //PLayer and Map
     Player * p = new Player(E_LEVEL[level].HEIGHT-2,E_LEVEL[level].WIDTH-2);
@@ -105,7 +102,7 @@ void gameLoop(const int level, int energy, int point){
         //std::cout<<"GEM: "<<i<<" "<<gems[i]->getX()<<" "<<gems[i]->getY()<<" "<<gems[i]->getSymbol()<<std::endl;
     }
     
-    //Gem
+    //M_Apple
     GameObject * M_Apples[E_LEVEL[level].MAGICAPPLES];
     for (int i = 0; i< E_LEVEL[level].MAGICAPPLES; i++){
         do{//Free check
@@ -123,7 +120,7 @@ void gameLoop(const int level, int energy, int point){
         showEnergy(energy);
         std::cout<<"\nPoints: "<<point<<"\n";
         m->print();
-        if(energy == 0) playerDead();
+        if(energy == 0) endGame();
         std::cout<<"Please select action: ";
         std::cin>>opt;
 
@@ -132,96 +129,19 @@ void gameLoop(const int level, int energy, int point){
         switch (opt)
         {
         case 'w':
-            /* code */
-            if (m->isWall(p->getX(),p->getY()-1)){
-                //to player function
-                std::cout<<"Hit the wall. Try Again. \nPress enter to continue!";
-                std::cin.ignore();
-                std::cin.get();
-                energy+=5; //-> to player
-                break;
-            }
-
-            m->clearObject(p->getX(),p->getY());
-            p->setY(p->getY()-1);
-            if (m->getObject(p->getX(),p->getY())=='E') {
-                finish = true;
-            } else if (m->isGem(p->getX(),p->getY())){
-                E_LEVEL[level].GEMS--;
-                point+=gems[m->getCode(p->getX(),p->getY())]->getValue();
-            } else if (m->getObject(p->getX(),p->getY())=='a'){
-                energy = energy+M_Apples[m->getCode(p->getX(),p->getY())]->getValue();
-            }
-            m->setObject(p->getX(),p->getY(),p->getSymbol(),0);
+            input = 1;
             break;
         case 'a':
-            
-            if (m->isWall(p->getX()-1,p->getY())){
-                std::cout<<"Hit the wall. Try Again. \nPress enter to continue!";
-                std::cin.ignore();
-                std::cin.get();
-                energy+=5;
-                break;
-            }
-
-            m->clearObject(p->getX(),p->getY());//
-            p->setX(p->getX()-1); //goleft function::Player
-            if (m->getObject(p->getX(),p->getY())=='E') {
-                finish = true;
-            } else if (m->isGem(p->getX(),p->getY())){
-                E_LEVEL[level].GEMS--;
-                point+=gems[m->getCode(p->getX(),p->getY())]->getValue();                
-            } else if (m->getObject(p->getX(),p->getY())=='a'){
-                energy = energy+M_Apples[m->getCode(p->getX(),p->getY())]->getValue();
-            }
-            
-            m->setObject(p->getX(),p->getY(),p->getSymbol(),0);
+            input = 2;
             break;
         case 's':
-            
-            if (m->isWall(p->getX(),p->getY()+1)){
-                std::cout<<"Hit the wall. Try Again. \nPress enter to continue!";
-                std::cin.ignore();
-                std::cin.get();
-                energy+=5;
-                break;
-            }
-
-            m->clearObject(p->getX(),p->getY());
-            p->setY(p->getY()+1);
-            if (m->getObject(p->getX(),p->getY())=='E') {
-                finish = true;
-            } else if (m->isGem(p->getX(),p->getY())){
-                E_LEVEL[level].GEMS--;
-                point+=gems[m->getCode(p->getX(),p->getY())]->getValue();                
-            } else if (m->getObject(p->getX(),p->getY())=='a'){
-                energy = energy+M_Apples[m->getCode(p->getX(),p->getY())]->getValue();
-            }
-
-            m->setObject(p->getX(),p->getY(),p->getSymbol(),0);
+            input = 3;
             break;
         case 'd':
-            
-            if (m->isWall(p->getX()+1,p->getY())){
-                std::cout<<"Hit the wall. Try Again. \nPress enter to continue!";
-                std::cin.ignore();
-                std::cin.get();
-                energy+=5;
-                break;
-            }
-            
-            m->clearObject(p->getX(),p->getY());
-            p->setX(p->getX()+1);
-            if (m->getObject(p->getX(),p->getY())=='E') {
-                finish = true;
-            } else if (m->isGem(p->getX(),p->getY())){
-                E_LEVEL[level].GEMS--;
-                point+=gems[m->getCode(p->getX(),p->getY())]->getValue();
-            } else if (m->getObject(p->getX(),p->getY())=='a'){
-                energy = energy+M_Apples[m->getCode(p->getX(),p->getY())]->getValue();
-            }
-
-            m->setObject(p->getX(),p->getY(),p->getSymbol(),0);
+            input = 4;
+            break;
+        case 'q':
+            endGame();
             break;
         default:
             energy+=5;
@@ -231,6 +151,31 @@ void gameLoop(const int level, int energy, int point){
             break;
         }
         
+        /* code */
+        if (m->isWall(p->getX()+move_x[input],p->getY()+move_y[input])){
+            //to player function
+            std::cout<<"Hit the wall. Try Again. \nPress enter to continue!";
+            std::cin.ignore();
+            std::cin.get();
+            energy+=5; //-> to player
+        } else {
+            m->clearObject(p->getX(),p->getY());
+            p->setX(p->getX()+move_x[input]);//set new x
+            p->setY(p->getY()+move_y[input]);//set new y
+            if (m->getObject(p->getX(),p->getY())=='E') {
+                finish = true;
+            }
+            if (m->isGem(p->getX(),p->getY())){
+                E_LEVEL[level].GEMS--;
+                point+=gems[m->getCode(p->getX(),p->getY())]->getValue();
+            }
+            if (m->getObject(p->getX(),p->getY())=='a'){
+                energy = energy+M_Apples[m->getCode(p->getX(),p->getY())]->getValue();
+            }
+            m->setObject(p->getX(),p->getY(),p->getSymbol(),0);
+        }
+
+        //
         if (energy>100) energy = 100; //no higher than 100
 
         if(E_LEVEL[level].GEMS==0&&nextLevel == false){
@@ -254,7 +199,7 @@ void gameLoop(const int level, int energy, int point){
         delete [] r[i];
     }
 
-    if (level == MAX_LEVEL) {playerDead();};
+    if (level == MAX_LEVEL) {endGame();};
     gameLoop(level+1,energy,point);
 }
 
@@ -305,10 +250,8 @@ void OS_select(){
     case '2':
         menuSelection(0);  
         break;
-
     default:
         std::cout<<"\nError input\n";
-        
         OS_select();
     }
 
