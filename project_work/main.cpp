@@ -2,7 +2,8 @@
 #include "lib/GameObject.h"
 #include "lib/Map.h"
 #include <time.h>
-
+#include <stdlib.h>
+#include <curses.h>
 void OS_select();
 
 const int MAX_LEVEL=10;
@@ -64,6 +65,55 @@ void showEnergy(int energy){
     for (int i =1; i <= energy/5 ; i++) std::cout<<"#";
     for (int i =1; i <= (100-energy)/5; i++) std::cout<<" ";
     std::cout<<" "<<energy<<"%";
+}
+
+int HandleInput(){
+    char inp;
+    while(1) {
+        system("stty raw");
+        inp = getchar(); 
+        // terminate when "." is pressed
+        system("stty cooked");
+        switch (inp)
+        {
+        case 'w':
+            return 1;
+            break;
+        case 'W':
+            return 1;
+            break;
+        case 'a':
+            return 2;
+            break;
+        case 'A':
+            return 2;
+            break;
+        case 's':
+            return 3;
+            break;
+        case 'S':
+            return 3;
+            break;
+        case 'd':
+            return 4;
+            break;
+        case 'D':
+            return 4;
+            break;
+        case 'q':
+            endGame();
+            break;
+        case 'Q':
+            endGame();
+            break;
+        default:
+            //std::cout<<"Wrong input.\nPress enter to continue!";
+            //std::cin.ignore();
+            //if (getchar()=='\n') 
+            //return 0;
+            break;
+        }
+    }
 }
 
 void gameLoop(const int level, int energy, int point){
@@ -132,59 +182,20 @@ void gameLoop(const int level, int energy, int point){
         std::cout<<"\nPoints: "<<point<<"\n";
         m->print();
         if(energy < 0) endGame();
-        std::cout<<"Please select action (move with wasd or q to escape)> ";
-        std::cin>>opt;
-
-        energy-=5;
-
-        switch (opt)
-        {
-        case 'w':
-            input = 1;
-            break;
-        case 'W':
-            input = 1;
-            break;
-        case 'a':
-            input = 2;
-            break;
-        case 'A':
-            input = 2;
-            break;
-        case 's':
-            input = 3;
-            break;
-        case 'S':
-            input = 3;
-            break;
-        case 'd':
-            input = 4;
-            break;
-        case 'D':
-            input = 4;
-            break;
-        case 'q':
-            endGame();
-            break;
-        case 'Q':
-            endGame();
-            break;
-        default:
-            energy+=5;
-            std::cout<<"Wrong input.\nPress enter to continue!";
-            std::cin.ignore();
-            std::cin.get();
-            break;
-        }
+        //std::cout<<"Please select action (move with wasd or q to escape)> ";
+        //std::cin>>opt;
+        
+        input = HandleInput();
         
         /* code */
         if (m->isWall(p->getX()+move_x[input],p->getY()+move_y[input])){
             //to player function
-            std::cout<<"Hit the wall. Try Again. \nPress enter to continue!";
-            std::cin.ignore();
-            std::cin.get();
-            energy+=5; //-> to player
+            //std::cout<<"Hit the wall. Try Again. \nPress enter to continue!";
+            //std::cin.ignore();
+            //std::cin.get();
+            
         } else {
+            energy-=5; //to player
             m->clearObject(p->getX(),p->getY());
             p->setX(p->getX()+move_x[input]);//set new x
             p->setY(p->getY()+move_y[input]);//set new y
