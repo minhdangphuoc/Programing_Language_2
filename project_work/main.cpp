@@ -37,7 +37,7 @@ void defaultConfig(){
         E_LEVEL[i].WIDTH = 7+i;
         E_LEVEL[i].MONSTERS = (i/2)+1;
         E_LEVEL[i].GEMS = (i/3)*2+1;
-        E_LEVEL[i].MAGICAPPLES = (i/2)+1;
+        E_LEVEL[i].MAGICAPPLES = (i/4)+1;
         E_LEVEL[i].ROCKS = 3*(i+1);
     }
 }
@@ -70,7 +70,7 @@ void gameLoop(const int level, int energy, int point){
     srand(time(NULL));
     bool finish = false, nextLevel = false;
     char opt;
-    int x_temp, y_temp, input;
+    int x_temp, y_temp, input=0;
     //GAMEOPJECT CREATED
     //PLayer and Map
     Player * p = new Player(E_LEVEL[level].HEIGHT-2,E_LEVEL[level].WIDTH-2);
@@ -78,50 +78,61 @@ void gameLoop(const int level, int energy, int point){
     m->setObject(p->getX(),p->getY(),p->getSymbol(),0); //set player on Map
     
     //Rock
-    GameObject * r[E_LEVEL[level].ROCKS];
+    GameObject * rocks[E_LEVEL[level].ROCKS];
     for (int i = 0; i< E_LEVEL[level].ROCKS; i++){
-        do{//Free check
+        do{//Floor check
             x_temp = 1+rand()%(E_LEVEL[level].HEIGHT-2);
             y_temp = 1+rand()%(E_LEVEL[level].WIDTH-2);
         } while (m->getObject(x_temp, y_temp)!='.');
 
-        r[i] = new Rock(x_temp,y_temp);
-        m->setObject(r[i]->getX(), r[i]->getY(), r[i]->getSymbol(), i);
-        //std::cout<<"ROCK: "<<i<<" "<<r[i]->getX()<<" "<<r[i]->getY()<<" "<<r[i]->getSymbol()<<std::endl;
+        rocks[i] = new Rock(x_temp,y_temp);
+        m->setObject(rocks[i]->getX(), rocks[i]->getY(), rocks[i]->getSymbol(), i);
+        
     }
 
     //Gem
     GameObject * gems[E_LEVEL[level].GEMS];
     for (int i = 0; i< E_LEVEL[level].GEMS; i++){
-        do{//Free check
+        do{//Floor check
             x_temp = 1+rand()%(E_LEVEL[level].HEIGHT-2);
             y_temp = 1+rand()%(E_LEVEL[level].WIDTH-2);
         } while (m->getObject(x_temp, y_temp)!='.');
         gems[i] = new Gem(x_temp,y_temp);
         m->setObject(gems[i]->getX(), gems[i]->getY(), gems[i]->getSymbol(), i);
-        //std::cout<<"GEM: "<<i<<" "<<gems[i]->getX()<<" "<<gems[i]->getY()<<" "<<gems[i]->getSymbol()<<std::endl;
+       
     }
     
     //M_Apple
     GameObject * M_Apples[E_LEVEL[level].MAGICAPPLES];
     for (int i = 0; i< E_LEVEL[level].MAGICAPPLES; i++){
-        do{//Free check
+        do{//Floor check
             x_temp = 1+rand()%(E_LEVEL[level].HEIGHT-2);
             y_temp = 1+rand()%(E_LEVEL[level].WIDTH-2);
         } while (m->getObject(x_temp, y_temp)!='.');
         M_Apples[i] = new MagicApple(x_temp,y_temp);
         m->setObject(M_Apples[i]->getX(), M_Apples[i]->getY(), M_Apples[i]->getSymbol(), i);
-        //std::cout<<"GEM: "<<i<<" "<<gems[i]->getX()<<" "<<gems[i]->getY()<<" "<<gems[i]->getSymbol()<<std::endl;
+        
     }
 
-    
+    //Monster
+    GameObject * monsters[E_LEVEL[level].MONSTERS];
+    for (int i = 0; i< E_LEVEL[level].MONSTERS; i++){
+        do{//Floor check
+            x_temp = 1+rand()%(E_LEVEL[level].HEIGHT-2);
+            y_temp = 1+rand()%(E_LEVEL[level].WIDTH-2);
+        } while (m->getObject(x_temp, y_temp)!='.');
+        monsters[i] = new Monster(x_temp,y_temp);
+        m->setObject(monsters[i]->getX(), monsters[i]->getY(), monsters[i]->getSymbol(), i);
+
+    }
+
     do{
         std::cout<<"Level: "<<level+1<<"\nPlayer energy: ";
         showEnergy(energy);
         std::cout<<"\nPoints: "<<point<<"\n";
         m->print();
-        if(energy == 0) endGame();
-        std::cout<<"Please select action: ";
+        if(energy < 0) endGame();
+        std::cout<<"Please select action (move with wasd or q to escape)> ";
         std::cin>>opt;
 
         energy-=5;
@@ -131,16 +142,31 @@ void gameLoop(const int level, int energy, int point){
         case 'w':
             input = 1;
             break;
+        case 'W':
+            input = 1;
+            break;
         case 'a':
+            input = 2;
+            break;
+        case 'A':
             input = 2;
             break;
         case 's':
             input = 3;
             break;
+        case 'S':
+            input = 3;
+            break;
         case 'd':
             input = 4;
             break;
+        case 'D':
+            input = 4;
+            break;
         case 'q':
+            endGame();
+            break;
+        case 'Q':
             endGame();
             break;
         default:
@@ -169,8 +195,11 @@ void gameLoop(const int level, int energy, int point){
                 E_LEVEL[level].GEMS--;
                 point+=gems[m->getCode(p->getX(),p->getY())]->getValue();
             }
-            if (m->getObject(p->getX(),p->getY())=='a'){
+            if (m->isApple(p->getX(),p->getY())){
                 energy = energy+M_Apples[m->getCode(p->getX(),p->getY())]->getValue();
+            }
+            if (m->isMonster(p->getX(),p->getY())){
+                energy = energy-monsters[m->getCode(p->getX(),p->getY())]->getValue();
             }
             m->setObject(p->getX(),p->getY(),p->getSymbol(),0);
         }
@@ -181,7 +210,7 @@ void gameLoop(const int level, int energy, int point){
         if(E_LEVEL[level].GEMS==0&&nextLevel == false){
             nextLevel = true;
             //Exit
-            do{//Free check //tranfer to map class###########
+            do{//Floor check //tranfer to map class###########
                 x_temp = 1+rand()%(E_LEVEL[level].HEIGHT-2);
                 y_temp = 1+rand()%(E_LEVEL[level].WIDTH-2);
             } while (m->getObject(x_temp, y_temp)!='.');
@@ -194,11 +223,20 @@ void gameLoop(const int level, int energy, int point){
     }while(!finish);
 
     //FREE SPACE
-    delete p,m,exit;
+    
     for (int i = 0; i < E_LEVEL[level].ROCKS; i++){
-        delete [] r[i];
+        delete [] rocks[i];
     }
-
+    for (int i = 0; i < E_LEVEL[level].MONSTERS; i++){
+        delete [] monsters[i];
+    }
+    for (int i = 0; i < E_LEVEL[level].MAGICAPPLES; i++){
+        delete [] M_Apples[i];
+    }
+    for (int i = 0; i < E_LEVEL[level].GEMS; i++){
+        delete [] gems[i];
+    }
+    delete p,m,exit,monsters,M_Apples,gems;
     if (level == MAX_LEVEL) {endGame();};
     gameLoop(level+1,energy,point);
 }

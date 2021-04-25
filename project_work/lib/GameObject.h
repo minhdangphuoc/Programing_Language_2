@@ -74,6 +74,7 @@ class Monster: public GameObject{
         pos.setX(x);
         pos.setY(y);
         srand(time(NULL));
+        value = (rand()%8+2)*5; //monsterdamage -10-50%
     }
 
     int getValue(){

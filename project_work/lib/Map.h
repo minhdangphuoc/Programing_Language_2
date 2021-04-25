@@ -33,7 +33,11 @@ public:
 	} 
 
 	bool isApple(const int x, const int y){
-		return map[y* this -> width + x]=='X'?true:false;
+		return map[y* this -> width + x]=='a'?true:false;
+	} 
+
+	bool isMonster(const int x, const int y){
+		return map[y* this -> width + x]=='m'?true:false;
 	} 
 
 	bool isGem(const int x, const int y){
