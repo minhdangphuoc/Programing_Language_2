@@ -15,7 +15,7 @@ class Logger
 	std::vector<std::string> records;
 public:
 	int points, gems=0, moves=0, levels; //tracking
-
+	std::string nickname;
 	//add new record
 	void AddToRecord(std::string logData) {
 		time_t now = time(0);

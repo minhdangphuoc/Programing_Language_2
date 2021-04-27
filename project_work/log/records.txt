@@ -1,26 +1,5 @@
-[2021.04.27-02:52:37] Start level 1
-[2021.04.27-02:52:38] Player found a gem. Player get 200 bonus points.
-[2021.04.27-02:52:38] Exit door is appear
-[2021.04.27-02:52:40] Player fight a monster. Player get 35 bonus points.
-[2021.04.27-02:52:41] escaped from the 0 levels dungeon after 14 moves, with 1 gems and total 235points.
-[2021.04.27-02:53:00] Start level 1
-[2021.04.27-02:53:01] Player fight a monster. Player get 10 bonus points.
-[2021.04.27-02:53:04] Player found a gem. Player get 200 bonus points.
-[2021.04.27-02:53:04] Exit door is appear
-[2021.04.27-02:53:05] Start level 2
-[2021.04.27-02:53:05] escaped from the 1 levels dungeon after 19 moves, with 1 gems and total 210points.
-[2021.04.27-02:58:44] Start level 1
-[2021.04.27-02:58:45] Player found a gem. Player get 200 bonus points.
-[2021.04.27-02:58:45] Exit door is appear
-[2021.04.27-02:58:47] Player fight a monster. Player get 20 bonus points.
-[2021.04.27-02:58:48] escaped from the 0 levels dungeon after 17 moves, with 1 gems and total 220points.
-[2021.04.27-03:00:18] Start level 1
-[2021.04.27-03:00:20] Player found a gem. Player get 200 bonus points.
-[2021.04.27-03:00:20] Exit door is appear
-[2021.04.27-03:00:21] Player fight a monster. Player get 45 bonus points.
-[2021.04.27-03:00:21] escaped from the 0 levels dungeon after 14 moves, with 1 gems and total 245points.
-[2021.04.27-03:01:00] Start level 1
-[2021.04.27-03:01:02] Player found a gem. Player get 50 bonus points.
-[2021.04.27-03:01:02] Exit door is appear
-[2021.04.27-03:01:05] Start level 2
-[2021.04.27-03:01:06] escaped from the 2 levels dungeon after 21 moves, with 1 gems and total 50points.
+[2021.04.27-03:12:34] Start level 1
+[2021.04.27-03:12:35] Player fight a monster. Player get 45 bonus points.
+[2021.04.27-03:12:37] escaped from the 1 levels dungeon after 12 moves, with 0 gems and total 45 points.
+[2021.04.27-03:16:01] Start level 1
+[2021.04.27-03:16:12] escaped from the 1 levels dungeon after 1 moves, with 0 gems and total 0 points.

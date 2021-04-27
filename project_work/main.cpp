@@ -53,20 +53,9 @@ void defaultConfig(){
     }
 }
 
-void endGame(){
-    char opt;
+void addRecordsToFile(){
     std::string line;
     std::vector<std::string> old_records;
-    if (system("CLS")) system("clear"); 
-
-    const std::string output  = "escaped from the " + std::to_string(his->levels+1) + " levels dungeon after " + std::to_string(his->moves) + " moves, with " + std::to_string(his->gems) + " gems and total " + std::to_string(his->points) + "points.";
-    std::cout<<"\nYou lose\nCongratulations! You have successfully " + output + "\n";
-    his->AddToRecord(output);
-
-    for (int i = 0; i< his->GetAllRecord().size(); ++i)  {
-        std::cout<<his->GetAllRecord()[i]<<std::endl;
-    }
-
     std::ifstream myRecords ("./log/records.txt");
     if (myRecords.is_open())
     {
@@ -85,8 +74,44 @@ void endGame(){
     }
     
     myOutRecords.close();
+}
+void addPlayerToFile(){
+    std::string line;
+    std::vector<std::string> old_records;
+    std::ifstream myRecords ("./log/players.txt");
+    if (myRecords.is_open())
+    {
+        while (std::getline (myRecords,line) )
+        {
+            old_records.push_back(line);
+        }
+        myRecords.close();
+    }
     
+    old_records.push_back(his->nickname+ " " + std::to_string(his->points));
 
+    std::ofstream myOutRecords ("./log/players.txt");
+    for (int i = 0; i< old_records.size(); ++i)  {
+        myOutRecords<<old_records[i] + "\n";
+    }
+    
+    myOutRecords.close();
+}
+void endGame(){
+    char opt;
+    
+    if (system("CLS")) system("clear"); 
+
+    const std::string output  = "escaped from the " + std::to_string(his->levels+1) + " levels dungeon after " + std::to_string(his->moves) + " moves, with " + std::to_string(his->gems) + " gems and total " + std::to_string(his->points) + " points.";
+    std::cout<<"\nYou lose\nCongratulations! You have successfully " + output + "\n";
+    his->AddToRecord(output);
+
+    for (int i = 0; i< his->GetAllRecord().size(); ++i)  {
+        std::cout<<his->GetAllRecord()[i]<<std::endl;
+    }
+
+    addRecordsToFile();
+    addPlayerToFile();
     std::cout<<"\nYou lose\nPlay again (y/n):";
     delete p,m,his;
     std::cin>>opt;
@@ -224,7 +249,7 @@ void gameLoop(const int level, int energy, int point, const bool OSmode){
     }
 
     do{
-        std::cout<<"Level: "<<level+1<<"\nPlayer energy: ";
+        std::cout<<"Level: "<<level+1<<"\nPlayer: "<<his->nickname<<" energy: ";
         showEnergy(energy);
         std::cout<<"\nPoints: "<<point<<"\n";
         m->print();
@@ -323,6 +348,10 @@ void menuSelection(const char OSmode){
     case '0':
         /* code */
         his = new Logger();
+        std::cin.get();
+        std::cout<<"New player nickname (1-10 digits): ";
+        getline(std::cin, his->nickname);
+        if (system("CLS")) system("clear"); 
         gameLoop(0,100,0,OSmode);
         break;
     case '1':
