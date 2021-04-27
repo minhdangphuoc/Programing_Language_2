@@ -50,6 +50,7 @@ class Exit: public GameObject{
 
 class Player: public GameObject{
     public:
+    
     Player(int max_x, int max_y){
         srand(time(NULL));
         pos.setX(rand()%max_x+1);

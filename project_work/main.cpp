@@ -3,13 +3,23 @@
 #include "lib/Map.h"
 #include <time.h>
 #include <stdlib.h>
-#include <curses.h>
+#include "lib/logger.h"
+#include <string>
+#include <vector>
+#include <sstream>
+#include <fstream>
+
 void OS_select();
 
 const int MAX_LEVEL=10;
 
 const int move_x[5] = {0,0,-1,0,1};
 const int move_y[5] = {0,-1,0,1,0};
+
+Logger *his;
+Player * p;
+Map * m;
+GameObject * exitD;
 
 struct LEVEL{
     int HEIGHT, WIDTH, MONSTERS, GEMS, MAGICAPPLES, ROCKS;
@@ -19,16 +29,16 @@ const std::string menu[2] =  {"╔═══════════════�
                             "\n║Welcome to the Treasure Hunt!                ║"
                             "\n║Entered into the magical dungeon, good luck! ║"
                             "\n║Choose your options below:                   ║"
-                            "\n║1. Play                                      ║"
-                            "\n║2. Exit the program                          ║"
+                            "\n║0. Play                                      ║"
+                            "\n║1. Exit the program                          ║"
                             "\n╚═════════════════════════════════════════════╝"
                             "\nYour option: ",
                               "/////////////////////////////////////////////////"
                         	"\n//Welcome to the Treasure Hunt!                //"
                             "\n//Entered into the magical dungeon, good luck! //"
                             "\n//Choose your options below:                   //"
-                        	"\n//1. Play                                      //"
-                            "\n//2. Exit the program                          //"
+                        	"\n//0. Play                                      //"
+                            "\n//1. Exit the program                          //"
                         	"\n/////////////////////////////////////////////////"
                         	"\nYour option: "};
 
@@ -45,12 +55,43 @@ void defaultConfig(){
 
 void endGame(){
     char opt;
+    std::string line;
+    std::vector<std::string> old_records;
     if (system("CLS")) system("clear"); 
-    std::cout<<"Play again (y/n):";
+
+    const std::string output  = "escaped from the " + std::to_string(his->levels+1) + " levels dungeon after " + std::to_string(his->moves) + " moves, with " + std::to_string(his->gems) + " gems and total " + std::to_string(his->points) + "points.";
+    std::cout<<"\nYou lose\nCongratulations! You have successfully " + output + "\n";
+    his->AddToRecord(output);
+
+    for (int i = 0; i< his->GetAllRecord().size(); ++i)  {
+        std::cout<<his->GetAllRecord()[i]<<std::endl;
+    }
+
+    std::ifstream myRecords ("./log/records.txt");
+    if (myRecords.is_open())
+    {
+        while (std::getline (myRecords,line) )
+        {
+            old_records.push_back(line);
+        }
+        myRecords.close();
+    }
+    
+    old_records+=his->GetAllRecord();
+
+    std::ofstream myOutRecords ("./log/records.txt");
+    for (int i = 0; i< old_records.size(); ++i)  {
+        myOutRecords<<old_records[i] + "\n";
+    }
+    
+    myOutRecords.close();
+    
+
+    std::cout<<"\nYou lose\nPlay again (y/n):";
+    delete p,m,his;
     std::cin>>opt;
     if (system("CLS")) system("clear"); 
     if(opt=='y'){
-        
         OS_select();
     }
     
@@ -67,13 +108,18 @@ void showEnergy(int energy){
     std::cout<<" "<<energy<<"%";
 }
 
-int HandleInput(){
+int HandleInput(const bool OSmode){
     char inp;
     while(1) {
-        system("stty raw");
-        inp = getchar(); 
-        // terminate when "." is pressed
-        system("stty cooked");
+        if (OSmode == 0) {
+            system("stty raw");
+            inp = getchar(); 
+            system("stty cooked");
+        } else {
+            std::cin.ignore();
+            inp = getchar(); 
+        }
+        his->moves++;
         switch (inp)
         {
         case 'w':
@@ -107,26 +153,31 @@ int HandleInput(){
             endGame();
             break;
         default:
-            //std::cout<<"Wrong input.\nPress enter to continue!";
-            //std::cin.ignore();
-            //if (getchar()=='\n') 
-            //return 0;
+            his->moves--;
+            if (OSmode == 1) {
+                std::cout<<"Wrong input.\nPress enter to continue!";
+                std::cin.ignore();
+                if (getchar()=='\n') 
+                return 0;
+            }
             break;
         }
     }
 }
 
-void gameLoop(const int level, int energy, int point){
+void gameLoop(const int level, int energy, int point, const bool OSmode){
     srand(time(NULL));
     bool finish = false, nextLevel = false;
     char opt;
     int x_temp, y_temp, input=0;
     //GAMEOPJECT CREATED
     //PLayer and Map
-    Player * p = new Player(E_LEVEL[level].HEIGHT-2,E_LEVEL[level].WIDTH-2);
-    Map * m = new Map(E_LEVEL[level].HEIGHT,E_LEVEL[level].WIDTH);
+    p = new Player(E_LEVEL[level].HEIGHT-2,E_LEVEL[level].WIDTH-2);
+    m = new Map(E_LEVEL[level].HEIGHT,E_LEVEL[level].WIDTH);
     m->setObject(p->getX(),p->getY(),p->getSymbol(),0); //set player on Map
     
+
+    his->AddToRecord("Start level " + std::to_string(level+1));
     //Rock
     GameObject * rocks[E_LEVEL[level].ROCKS];
     for (int i = 0; i< E_LEVEL[level].ROCKS; i++){
@@ -137,7 +188,6 @@ void gameLoop(const int level, int energy, int point){
 
         rocks[i] = new Rock(x_temp,y_temp);
         m->setObject(rocks[i]->getX(), rocks[i]->getY(), rocks[i]->getSymbol(), i);
-        
     }
 
     //Gem
@@ -149,7 +199,6 @@ void gameLoop(const int level, int energy, int point){
         } while (m->getObject(x_temp, y_temp)!='.');
         gems[i] = new Gem(x_temp,y_temp);
         m->setObject(gems[i]->getX(), gems[i]->getY(), gems[i]->getSymbol(), i);
-       
     }
     
     //M_Apple
@@ -161,7 +210,6 @@ void gameLoop(const int level, int energy, int point){
         } while (m->getObject(x_temp, y_temp)!='.');
         M_Apples[i] = new MagicApple(x_temp,y_temp);
         m->setObject(M_Apples[i]->getX(), M_Apples[i]->getY(), M_Apples[i]->getSymbol(), i);
-        
     }
 
     //Monster
@@ -173,7 +221,6 @@ void gameLoop(const int level, int energy, int point){
         } while (m->getObject(x_temp, y_temp)!='.');
         monsters[i] = new Monster(x_temp,y_temp);
         m->setObject(monsters[i]->getX(), monsters[i]->getY(), monsters[i]->getSymbol(), i);
-
     }
 
     do{
@@ -181,11 +228,15 @@ void gameLoop(const int level, int energy, int point){
         showEnergy(energy);
         std::cout<<"\nPoints: "<<point<<"\n";
         m->print();
+
+        his->points = point;
+        his->levels = level;
+        
         if(energy < 0) endGame();
-        //std::cout<<"Please select action (move with wasd or q to escape)> ";
+        std::cout<<"Please select action (move with wasd or q to escape)> ";
         //std::cin>>opt;
         
-        input = HandleInput();
+        input = HandleInput(OSmode);
         
         /* code */
         if (m->isWall(p->getX()+move_x[input],p->getY()+move_y[input])){
@@ -193,7 +244,7 @@ void gameLoop(const int level, int energy, int point){
             //std::cout<<"Hit the wall. Try Again. \nPress enter to continue!";
             //std::cin.ignore();
             //std::cin.get();
-            
+            his->moves--;
         } else {
             energy-=5; //to player
             m->clearObject(p->getX(),p->getY());
@@ -204,13 +255,18 @@ void gameLoop(const int level, int energy, int point){
             }
             if (m->isGem(p->getX(),p->getY())){
                 E_LEVEL[level].GEMS--;
+                his->gems++;
                 point+=gems[m->getCode(p->getX(),p->getY())]->getValue();
+                his->AddToRecord("Player found a gem. Player get " + std::to_string(gems[m->getCode(p->getX(),p->getY())]->getValue()) + " bonus points.");
             }
             if (m->isApple(p->getX(),p->getY())){
                 energy = energy+M_Apples[m->getCode(p->getX(),p->getY())]->getValue();
+                his->AddToRecord("Ate an apple. Player increased the energy to" + std::to_string(energy));
             }
             if (m->isMonster(p->getX(),p->getY())){
                 energy = energy-monsters[m->getCode(p->getX(),p->getY())]->getValue();
+                point+=monsters[m->getCode(p->getX(),p->getY())]->getValue();
+                his->AddToRecord("Player fight a monster. Player get " + std::to_string(monsters[m->getCode(p->getX(),p->getY())]->getValue()) + " bonus points.");
             }
             m->setObject(p->getX(),p->getY(),p->getSymbol(),0);
         }
@@ -226,8 +282,9 @@ void gameLoop(const int level, int energy, int point){
                 y_temp = 1+rand()%(E_LEVEL[level].WIDTH-2);
             } while (m->getObject(x_temp, y_temp)!='.');
             
-            GameObject * exit = new Exit(x_temp,y_temp);
-            m->setObject(exit->getX(), exit->getY(), exit->getSymbol(), 0);
+            exitD = new Exit(x_temp,y_temp);
+            m->setObject(exitD->getX(), exitD->getY(), exitD->getSymbol(), 0);
+            his->AddToRecord("Exit door is appear");
         }
 
         if (system("CLS")) system("clear"); 
@@ -247,13 +304,14 @@ void gameLoop(const int level, int energy, int point){
     for (int i = 0; i < E_LEVEL[level].GEMS; i++){
         delete [] gems[i];
     }
-    delete p,m,exit,monsters,M_Apples,gems;
+    delete exitD, monsters, M_Apples,gems;
     if (level == MAX_LEVEL) {endGame();};
-    gameLoop(level+1,energy,point);
+    
+    gameLoop(level+1,energy,point,OSmode);
 }
 
 
-void menuSelection(const bool OSmode){
+void menuSelection(const char OSmode){
     char opt;
     std::cout<<menu[OSmode];
     std::cin>>opt;
@@ -262,11 +320,12 @@ void menuSelection(const bool OSmode){
     
     switch (opt)
     {
-    case '1':
+    case '0':
         /* code */
-        gameLoop(0,100,0);
+        his = new Logger();
+        gameLoop(0,100,0,OSmode);
         break;
-    case '2':
+    case '1':
         std::cout<<"Good Bye, See you again.\n";
         //Pause for showing the player list
         std::cout<<"Press enter key to exit. ";
@@ -293,10 +352,10 @@ void OS_select(){
 
     switch (opt)
     {
-    case '1':
+    case '1': //window
         menuSelection(1);    
         break;
-    case '2':
+    case '2': //terminal
         menuSelection(0);  
         break;
     default:
